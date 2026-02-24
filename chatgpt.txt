@@ -1,0 +1,49 @@
+
+
+Python eğitimi:
+toplam 4 saat
+2 saat vs code kurulum
+2 saat vucut kitle indexsi gibi uygulamlar yapmakla geçti
+robot eğitimi
+1,5 video
+1 video robot kurulumu
+ikinci videonun yarısına kadar kurulum dersleri devam ediyor.
+sıkıcı geldiği için robot derslerini izlemiyorum
+
+bu framework robot vakfının githubdaki ornek frameworku.
+bunu indirip kendime göre değişklikler yaptım.
+
+bugun uzerinde çalışacağımız konu  pages classının genel verici olarak kodlanmassı
+
+şunlar ypaıldı
+
+1 https://practicesoftwaretesting.com/  sitesi için login test hazırlandı
+C:\Users\user\PycharmProjects\QA_Lab_python\practiceSoftWare\PS001.py
+2 bu testten page class oluşturuldu
+C:\Users\user\PycharmProjects\QA_Lab_python\pages\soft_ware_test_page.py
+3 pages class içindeki methodlarla ile
+şu testler hazırlandı
+  - C:\Users\user\PycharmProjects\QA_Lab_python\practiceSoftWare\PS001LoginWithMethod.py
+  - C:\Users\user\PycharmProjects\QA_Lab_python\feature\practicesoftware.feature
+  - C:\Users\user\PycharmProjects\QA_Lab_python\feature\steps\practicesoftwareSteps.py
+
+şimdi ben isityorum ki .
+pages classını oyle bir yapıya dönüştüreyim ki
+
+*** TEST CASE ***
+Practice Page Login Islemleri
+  - Kullanici practice software sayfasina gider   ${practice_software_homePage}
+  - Kullanici login sayfasina gider
+  - Kullanici login islemlerini gerçeklestirir   ${practice_software_email}  ${practice_software_password}
+  - Kullanici dirver kapatir
+
+robot dosyasında sadece bu 4 cumle ile testi çalıştırayım.
+yani minumum laf kalabalığı ile testi dondurayim.
+
+daha önceki denemelerimde test başladı fakat dirver problemşnden dolayı test ilerlemedi
+
+*** bugun dirver yapısını değiştiridim. pages class içinde görülüyor.
+*** bu gun hedefimiz gerçek bir test yapmakdan ziyade  robot dosyasındaki 4 adımı ilerletebilmek.
+
+
+
