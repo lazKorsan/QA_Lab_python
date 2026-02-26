@@ -1,6 +1,6 @@
-from lib2to3.pgen2 import driver
+import pytest
 
-from pages.soft_ware_test_page import PracticeSoftWarePage, practice_software_email, practice_software_password
+from pages.PracticeSoftWarePage import PracticeSoftWarePage, practice_software_email, practice_software_password
 
 
 def test_paractice_soft_ware():
