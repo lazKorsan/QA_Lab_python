@@ -206,7 +206,7 @@ def write_results_to_file(file_path, output_file):
 
 
 # Ana kullanım
-source_file = 'C:\\Users\\user\\PycharmProjects\\QA_Lab_python\\keylist.py'
+source_file = 'C:\\Users\\user\\PycharmProjects\\QA_Lab_python\\pages\\DemoqaPage.py'
 output_file = 'C:\\Users\\user\\PycharmProjects\\QA_Lab_python\\keylist.txt'
 
 # Alternatif olarak PracticeSoftWarePage.py için de kullanabilirsiniz:

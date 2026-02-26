@@ -1,13 +1,26 @@
 ============================================================
-KEYWORD LISTESI - C:\Users\user\PycharmProjects\QA_Lab_python\keylist.py
-Oluşturulma Tarihi: 2026-02-26 04:51:02
+KEYWORD LISTESI - C:\Users\user\PycharmProjects\QA_Lab_python\pages\DemoqaPage.py
+Oluşturulma Tarihi: 2026-02-26 05:50:39
 ============================================================
+
+SINIFLARDAKI KEYWORD METODLARI:
+----------------------------------------
+
+Sınıf: DemoqaPage (satır 21)
+  → navi_demoqa_home -> @keyword(demoqa ana sayfasina gider) [satır 25]
+  → navi_demoqa_login -> @keyword(demoqa login sayfasina gider) [satır 33]
+  → demoqa_login_procudure -> @keyword(login islemlerini gerceklesitirir) [satır 38]
+  → close_driver -> @keyword(demoqa tarayiciyi kapatir) [satır 59]
 
 ============================================================
 ÖZET İSTATİSTİKLER:
 ----------------------------------------
 Toplam Keyword Fonksiyon: 0
-Keyword İçeren Sınıf Sayısı: 0
-Sınıflardaki Toplam Keyword Metod: 0
-Toplam Keyword Sayısı: 0
+Keyword İçeren Sınıf Sayısı: 1
+Sınıflardaki Toplam Keyword Metod: 4
+Toplam Keyword Sayısı: 4
 ============================================================
+demoqa ana sayfasina gider
+demoqa login sayfasina gider
+login islemlerini gerceklesitirir
+demoqa tarayiciyi kapatir
