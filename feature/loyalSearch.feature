@@ -1,10 +1,6 @@
-# language: tr
-Feature: LoyalFriend Ürün Arama Fonksiyonu
+Feature:
 
-  Kullanıcıların LoyalFriend web sitesinde ürün arama özelliğini
-  doğru bir şekilde kullanabildiğini doğrulamak.
-
-  Scenario Outline: Kullanıcı sitede bir ürün arar ve sonuçları görür
+  Scenario Outline:
     Given Kullanıcı LoyalFriend ana sayfasındadır
     When Kullanıcı arama kutusuna "<arama_terimi>" yazar ve arar
     Then Arama sonuçlarında bulunan ürün sayısı ve listesi konsola yazdırılır
