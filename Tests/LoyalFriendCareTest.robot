@@ -5,7 +5,7 @@ Library    ../pages/LoyalFriendCarePage.py
 
 *** Variables ***
 ${BROWSER}    chrome
-${mail}    jlazKorsan190220262054@gmail.com
+${mail}    lazKorsan190220262054@gmail.com
 ${password}    Query.2026!
 
 *** Test Cases ***
