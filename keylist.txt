@@ -1,0 +1,13 @@
+============================================================
+KEYWORD LISTESI - C:\Users\user\PycharmProjects\QA_Lab_python\keylist.py
+Oluşturulma Tarihi: 2026-02-26 04:51:02
+============================================================
+
+============================================================
+ÖZET İSTATİSTİKLER:
+----------------------------------------
+Toplam Keyword Fonksiyon: 0
+Keyword İçeren Sınıf Sayısı: 0
+Sınıflardaki Toplam Keyword Metod: 0
+Toplam Keyword Sayısı: 0
+============================================================
