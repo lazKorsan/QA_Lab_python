@@ -1,22 +1,13 @@
 ============================================================
-KEYWORD LISTESI - C:\Users\user\PycharmProjects\QA_Lab_python\pages\GeekPage.py
-Oluşturulma Tarihi: 2026-02-26 03:57:26
+KEYWORD LISTESI - C:\Users\user\PycharmProjects\QA_Lab_python\keylist.py
+Oluşturulma Tarihi: 2026-02-26 04:51:02
 ============================================================
-
-SINIFLARDAKI KEYWORD METODLARI:
-----------------------------------------
-
-Sınıf: GeekPage (satır 24)
-  → navi_geek_home -> @keyword(geekHomePage sayfasina gider) [satır 30]
-  → navi_geek_login -> @keyword(geekLoginPage sayfasina gider) [satır 40]
-  → geek_login_procudere -> @keyword(login islemlerini gerceklesitirir) [satır 49]
-  → close_driver -> @keyword(tarayiciyi kapatir) [satır 73]
 
 ============================================================
 ÖZET İSTATİSTİKLER:
 ----------------------------------------
 Toplam Keyword Fonksiyon: 0
-Keyword İçeren Sınıf Sayısı: 1
-Sınıflardaki Toplam Keyword Metod: 4
-Toplam Keyword Sayısı: 4
+Keyword İçeren Sınıf Sayısı: 0
+Sınıflardaki Toplam Keyword Metod: 0
+Toplam Keyword Sayısı: 0
 ============================================================

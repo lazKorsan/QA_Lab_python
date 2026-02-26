@@ -8,6 +8,8 @@ from pages.GeekPage import GeekPage, geekMail, geekPassword
 def step_impl(context):
     context.geekPages=GeekPage()
     context.geekPages.navi_geek_home()
+
+
 keyword(u'Then Kullanici geekLoginPage sayfasina gider')
 @then(u'Kullanici geekLoginPage sayfasina gider')
 def step_impl(context):
@@ -15,7 +17,6 @@ def step_impl(context):
 keyword(u'And Kullanici login islemlerini gerceklesitirir')
 @then(u'Kullanici login islemlerini gerceklesitirir')
 def step_impl(context):
-
     context.geekPages.geek_login_procudere(geekMail, geekPassword)
 keyword(u'And Kullanici tarayiciyi kapatir')
 @then(u'Kullanici tarayiciyi kapatir')
