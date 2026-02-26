@@ -1,6 +1,6 @@
 from behave import given, then, when
 
-from pages.soft_ware_test_page import practice_software_email, practice_software_password, PracticeSoftWarePage
+from pages.PracticeSoftWarePage import practice_software_email, practice_software_password, PracticeSoftWarePage
 
 
 @given(u'Kullanici practicesoftware sayfasina gider')
