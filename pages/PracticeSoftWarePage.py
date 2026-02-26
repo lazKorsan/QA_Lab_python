@@ -1,4 +1,6 @@
 import time
+
+from robot.api.deco import keyword
 from selenium import webdriver
 from utils.click_utils import click_utils
 from utils.sendkey_utils import sendKey_utils
@@ -16,7 +18,8 @@ practice_software_email = "lazKorsan123@gmail.com"
 practice_software_password = "Query.2026"
 
 class PracticeSoftWarePage:
-
+    ROBOT_LIBRARY_SCOPE = 'TEST SUITE'
+    @keyword("practicesoftware ana sayfasına gider")
     @staticmethod
     def go_to_practice_test_homepage():
         # Kullanıcı global driver nesnesini çeker
@@ -26,7 +29,7 @@ class PracticeSoftWarePage:
         driver.maximize_window()
         driver.get(practice_software_homePage)
         time.sleep(2)
-
+    @keyword("practicesoftware login sayfasına gider")
     @staticmethod
     def navigate_to_login_page():
         global driver
@@ -36,7 +39,7 @@ class PracticeSoftWarePage:
             practice_software_loginButton_Xpath,
             "red"
         )
-
+    @keyword("practice software login işlemlerini gerçekleştirir")
     @staticmethod
     def login_procudere(email, password):
         global driver
@@ -64,6 +67,7 @@ class PracticeSoftWarePage:
             "purple",
         )
 
+    @keyword("practicesoftware tarayıcıyı kapatır")
     @staticmethod
     def close_driver():
         global driver
