@@ -2,17 +2,18 @@ import time
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-
 from utils.sendkey_utils import sendKey_utils
+
+# Global driver nesnesi
+driver = None
 
 loyal_URL = "https://qa.loyalfriendcare.com/en"
 loyalfriendSearchBoxXpath = '//input[@class="form-control"]'
 loyalProductList_Xpath = '//*[@class="wrapper"]'
 
-
-
 @pytest.fixture(scope="module")
-def driver():
+def setup_driver():
+    global driver
     # Kullanici driver nesnesi olusturur
     driver = webdriver.Chrome()
     driver.maximize_window()
@@ -22,7 +23,7 @@ def driver():
 
 # Kullanici parametreli arama yaptırır
 @pytest.mark.parametrize("searchList", ["re", "ra"])
-def test_search_time(driver, searchList):
+def test_search_time(setup_driver, searchList):
     driver.get(loyal_URL)
 
     # Sayfanın tamamen yüklenmesi için kısa bir bekleme
@@ -53,5 +54,6 @@ def test_search_time(driver, searchList):
     for name in product_names:
         print(name)
 
-
+if __name__ == "__main__":
+    pytest.main()
 
