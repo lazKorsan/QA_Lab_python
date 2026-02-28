@@ -1,0 +1,36 @@
+
+
+Kullanıcı
+https://qa.loyalfriendcare.com/en  isimli siteye gider
+
+signInButton='(//*[@class="btn_add"])[1]'
+
+once yukarıdaki ismi verilen butona
+
+gerekiyorsa  scrool ypar
+gerekiyorsa hoover yapar.
+
+sonra button  highlight eder
+Kullanıcı highlight rengini gerekiyorsa karar verebilir
+highlightClour="istenenRenk"
+aynı zamanda buttonun merkezine dairesel bir damga yapıştırır.
+Kullanıcı isterse bunu domine edebilir.
+daireseRenk="istenenRenk"
+
+sonra bu buttonun
+
+gorunurlugunu ve tıklanabilirligini  assert eder
+ sonucu konsola yazdırır.
+
+
+Kullanıcı
+buttona basılıp basılmayacağına karar verebilir
+click="true" yada clikc="false" ile durumu yonetir.
+
+eğer buttona basılacak ise
+arkada çalışan kodlar butun ihtimallerle buttona basmaya çalışır.
+buttona basma işlemi kolaydan zora devam eder.
+
+sonucta  consola  şu methodla basıldı diye rapor eder.
+
+testin sonucunda button uzeirnde yazan yazıyı consola yazdırır
