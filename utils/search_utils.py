@@ -1,21 +1,45 @@
 """
-Search Utilities - Arama işlemleri için yardımcı sınıf
+Search Utilities - Gelişmiş Arama ve Ürün Çekme Sınıfı
 Author: QA Engineer
 Date: 2024
 """
 
 import time
 import os
+import json
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
-from dataclasses import dataclass, field
+from typing import List, Dict, Optional, Tuple, Any, Union
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, StaleElementReferenceException
+
+
+@dataclass
+class ProductDetail:
+    """Ürün detay veri sınıfı"""
+    name: str = ""
+    price: str = ""
+    link: str = ""
+    image: str = ""
+    sku: str = ""
+    brand: str = ""
+    description: str = ""
+    specifications: Dict[str, str] = field(default_factory=dict)
+    all_text: str = ""
+
+    def to_dict(self) -> Dict:
+        """Sözlük formatına çevirir"""
+        return asdict(self)
+
+    def summary(self) -> str:
+        """Özet bilgi döndürür"""
+        return f"{self.name} - {self.price}"
 
 
 @dataclass
@@ -23,7 +47,7 @@ class SearchResult:
     """Arama sonucu veri sınıfı"""
     term: str
     product_count: int
-    products: List[Dict]
+    products: List[ProductDetail]
     search_time: float
     timestamp: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -32,48 +56,180 @@ class SearchResult:
         return f"'{self.term}' için {self.product_count} ürün ({self.search_time:.2f}s)"
 
 
-class SearchUtils:
+class ProductExtractor:
     """
-    Arama işlemleri için profesyonel yardımcı sınıf
-    Tüm projelerde kullanılabilir, genel yapı
+    Ürün detaylarını çıkaran gelişmiş sınıf
+    Her türlü HTML yapısından ürün bilgilerini çıkarabilir
     """
 
-    # Varsayılan XPath'ler
-    DEFAULT_SEARCH_BOX = '//input[@type="search" or contains(@class, "search") or @name="search" or @id="search"]'
-    DEFAULT_PRODUCT_WRAPPER = '//*[contains(@class, "product") or contains(@class, "item") or contains(@class, "wrapper")]'
-    DEFAULT_PRODUCT_TITLE = './/h4 | .//h3 | .//*[contains(@class, "title")] | .//*[contains(@class, "name")]'
+    def __init__(self, driver: WebDriver, timeout: int = 5):
+        self.driver = driver
+        self.timeout = timeout
+
+    def extract_from_element(self,
+                            element: WebElement,
+                            locator_config: Optional[Dict] = None) -> ProductDetail:
+        """
+        Bir WebElement'ten ürün detaylarını çıkarır
+
+        Args:
+            element: Ürün elementi
+            locator_config: Özel locator konfigürasyonu
+
+        Returns:
+            ProductDetail objesi
+        """
+        product = ProductDetail()
+
+        try:
+            # Tüm text'i al
+            product.all_text = element.text.strip()
+
+            # Varsayılan locator'lar
+            default_locators = {
+                'name': [
+                    './/h1', './/h2', './/h3', './/h4',
+                    './/*[contains(@class, "title")]',
+                    './/*[contains(@class, "name")]',
+                    './/*[contains(@class, "product-name")]',
+                    './/*[@itemprop="name"]'
+                ],
+                'price': [
+                    './/*[contains(@class, "price")]',
+                    './/*[contains(@class, "fiyat")]',
+                    './/*[contains(@class, "sale-price")]',
+                    './/*[contains(@class, "current-price")]',
+                    './/*[@itemprop="price"]',
+                    './/ins', './/span[contains(@class, "price")]'
+                ],
+                'link': [
+                    './/a/@href',
+                    './/a'
+                ],
+                'image': [
+                    './/img/@src',
+                    './/img/@data-src',
+                    './/img'
+                ],
+                'sku': [
+                    './/*[contains(@class, "sku")]',
+                    './/*[contains(@class, "code")]',
+                    './/*[@itemprop="sku"]'
+                ],
+                'brand': [
+                    './/*[contains(@class, "brand")]',
+                    './/*[contains(@class, "marka")]',
+                    './/*[@itemprop="brand"]'
+                ],
+                'description': [
+                    './/*[contains(@class, "description")]',
+                    './/*[contains(@class, "aciklama")]',
+                    './/*[@itemprop="description"]'
+                ]
+            }
+
+            # Özel locator varsa onu kullan, yoksa varsayılanı
+            locators = locator_config if locator_config else default_locators
+
+            # Her bir alanı dene
+            for field, xpath_list in locators.items():
+                if field == 'all_text':
+                    continue
+
+                value = self._extract_field(element, field, xpath_list)
+                if value:
+                    setattr(product, field, value)
+
+            # Spesifikasyonları çıkar (tablo yapısı varsa)
+            product.specifications = self._extract_specifications(element)
+
+        except Exception as e:
+            print(f"⚠️ Ürün çıkarılırken hata: {e}")
+
+        return product
+
+    def _extract_field(self, element: WebElement, field_name: str, xpath_list: List[str]) -> Optional[str]:
+        """Tek bir alanı çıkarmayı dener"""
+        for xpath in xpath_list:
+            try:
+                if xpath.endswith('/@href') or xpath.endswith('/@src'):
+                    # Attribute çekme
+                    real_xpath = xpath.replace('/@href', '').replace('/@src', '')
+                    attr_name = 'href' if '/@href' in xpath else 'src'
+                    sub_element = element.find_element(By.XPATH, real_xpath)
+                    value = sub_element.get_attribute(attr_name)
+                    if value:
+                        return value
+                else:
+                    # Element text'i çekme
+                    sub_element = element.find_element(By.XPATH, xpath)
+                    value = sub_element.text.strip()
+                    if value:
+                        return value
+            except:
+                continue
+        return None
+
+    def _extract_specifications(self, element: WebElement) -> Dict[str, str]:
+        """Ürün spesifikasyonlarını çıkarır (tablo formatında)"""
+        specs = {}
+        try:
+            # Tablo satırlarını bul
+            rows = element.find_elements(By.XPATH, './/tr')
+            for row in rows:
+                try:
+                    cells = row.find_elements(By.XPATH, './/td | .//th')
+                    if len(cells) >= 2:
+                        key = cells[0].text.strip()
+                        value = cells[1].text.strip()
+                        if key and value:
+                            specs[key] = value
+                except:
+                    continue
+
+            # Alternatif: div-based specs
+            if not specs:
+                spec_items = element.find_elements(By.XPATH, './/*[contains(@class, "spec")]')
+                for item in spec_items:
+                    text = item.text.strip()
+                    if ':' in text:
+                        key, value = text.split(':', 1)
+                        specs[key.strip()] = value.strip()
+
+        except Exception as e:
+            print(f"⚠️ Spesifikasyon çıkarılamadı: {e}")
+
+        return specs
+
+
+class AdvancedSearchUtils:
+    """
+    Gelişmiş Arama ve Ürün Çekme Sınıfı
+    Esnek ve her site için kullanılabilir
+    """
 
     def __init__(self, driver: WebDriver, timeout: int = 10):
         """
-        SearchUtils sınıfı başlatıcı
+        AdvancedSearchUtils sınıfı başlatıcı
 
         Args:
             driver: Selenium WebDriver instance
-            timeout: Varsayılan bekleme süresi (saniye)
+            timeout: Varsayılan bekleme süresi
         """
         self.driver = driver
         self.timeout = timeout
         self.search_history: List[SearchResult] = []
+        self.extractor = ProductExtractor(driver, timeout)
         self.report_dir = self._create_report_directory()
 
     def _create_report_directory(self) -> Path:
         """Raporlar için dizin oluşturur"""
-        report_dir = Path.cwd() / "test_reports" / "search_results"
+        report_dir = Path.cwd() / "test_reports" / "product_data"
         report_dir.mkdir(parents=True, exist_ok=True)
         return report_dir
 
-    def _wait_for_element(self, by: By, value: str, timeout: Optional[int] = None) -> Optional[object]:
-        """
-        Elementin görünmesini bekler
-
-        Args:
-            by: By tipi (By.XPATH, By.ID, etc.)
-            value: Element lokasyonu
-            timeout: Özel bekleme süresi
-
-        Returns:
-            WebElement veya None
-        """
+    def _wait_for_element(self, by: By, value: str, timeout: Optional[int] = None) -> Optional[WebElement]:
+        """Elementin görünmesini bekler"""
         try:
             wait_time = timeout or self.timeout
             element = WebDriverWait(self.driver, wait_time).until(
@@ -84,43 +240,44 @@ class SearchUtils:
             print(f"⚠️ Element bulunamadı: {value}")
             return None
 
-    def search_and_get_results(self,
+    def search_and_get_products(self,
                                search_term: str,
-                               search_box_xpath: Optional[str] = None,
-                               product_wrapper_xpath: Optional[str] = None,
-                               product_title_xpath: Optional[str] = None,
+                               search_box_locator: Union[str, Tuple[By, str]],
+                               product_list_locator: Union[str, Tuple[By, str]],
                                wait_after_search: int = 3,
                                clear_before_search: bool = True,
-                               max_products_to_extract: int = 100) -> SearchResult:
+                               max_products: int = 50,
+                               load_more_button_locator: Optional[Union[str, Tuple[By, str]]] = None,
+                               custom_extractor_config: Optional[Dict] = None) -> SearchResult:
         """
-        Arama yapar ve sonuçları döndürür
+        Arama yapar ve ürün listesini döndürür
 
         Args:
             search_term: Aranacak kelime
-            search_box_xpath: Arama kutusu XPath'i (None = varsayılan)
-            product_wrapper_xpath: Ürün wrapper XPath'i (None = varsayılan)
-            product_title_xpath: Ürün başlık XPath'i (None = varsayılan)
+            search_box_locator: Arama kutusu locator'ı (string XPath veya (By, value) tuple)
+            product_list_locator: Ürün listesi locator'ı
             wait_after_search: Arama sonrası bekleme süresi
             clear_before_search: Aramadan önce kutuyu temizle
-            max_products_to_extract: Çekilecek maksimum ürün sayısı
+            max_products: Çekilecek maksimum ürün sayısı
+            load_more_button_locator: "Daha fazla" butonu locator'ı
+            custom_extractor_config: Özel extractor konfigürasyonu
 
         Returns:
             SearchResult objesi
         """
         start_time = time.time()
 
-        # XPath'leri belirle
-        search_xpath = search_box_xpath or self.DEFAULT_SEARCH_BOX
-        wrapper_xpath = product_wrapper_xpath or self.DEFAULT_PRODUCT_WRAPPER
-        title_xpath = product_title_xpath or self.DEFAULT_PRODUCT_TITLE
+        # Locator'ları standardize et
+        search_by, search_value = self._parse_locator(search_box_locator)
+        product_by, product_value = self._parse_locator(product_list_locator)
 
-        products_found = []
+        products = []
 
         try:
-            # Arama kutusunu bul ve temizle
-            search_box = self._wait_for_element(By.XPATH, search_xpath)
+            # Arama kutusunu bul
+            search_box = self._wait_for_element(search_by, search_value)
             if not search_box:
-                raise Exception(f"Arama kutusu bulunamadı: {search_xpath}")
+                raise Exception(f"Arama kutusu bulunamadı")
 
             if clear_before_search:
                 search_box.clear()
@@ -132,14 +289,28 @@ class SearchUtils:
             # Sonuçların yüklenmesini bekle
             time.sleep(wait_after_search)
 
-            # Ürün wrapperlarını bul
-            wrappers = self.driver.find_elements(By.XPATH, wrapper_xpath)
+            # Ürünleri bul
+            product_elements = self.driver.find_elements(product_by, product_value)
 
-            # Ürün bilgilerini çek
-            for i, wrapper in enumerate(wrappers[:max_products_to_extract], 1):
-                product_info = self._extract_product_info(wrapper, i, title_xpath)
-                if product_info:
-                    products_found.append(product_info)
+            # "Daha fazla" butonu varsa tıkla ve ürünleri yükle
+            if load_more_button_locator:
+                load_by, load_value = self._parse_locator(load_more_button_locator)
+                self._load_all_products(load_by, load_value, product_by, product_value, max_products)
+
+            # Ürünleri çek
+            for i, element in enumerate(product_elements[:max_products], 1):
+                print(f"  📦 Ürün {i}/{min(len(product_elements), max_products)} çekiliyor...")
+
+                product_detail = self.extractor.extract_from_element(
+                    element,
+                    custom_extractor_config
+                )
+
+                # Eğer isim boşsa ve element text'i varsa onu kullan
+                if not product_detail.name and element.text.strip():
+                    product_detail.name = element.text.strip()[:100]
+
+                products.append(product_detail)
 
         except Exception as e:
             print(f"❌ Arama sırasında hata: {e}")
@@ -148,224 +319,277 @@ class SearchUtils:
         search_time = time.time() - start_time
         result = SearchResult(
             term=search_term,
-            product_count=len(products_found),
-            products=products_found,
+            product_count=len(products),
+            products=products,
             search_time=search_time
         )
 
-        # Geçmişe ekle
         self.search_history.append(result)
-
         return result
 
-    def _extract_product_info(self, wrapper, index: int, title_xpath: str) -> Optional[Dict]:
+    def get_product_details(self,
+                           product_locator: Union[str, Tuple[By, str]],
+                           wait_for_details: bool = True,
+                           extractor_config: Optional[Dict] = None) -> ProductDetail:
         """
-        Tek bir ürünün bilgilerini çıkarır
+        Tek bir ürünün detaylarını çeker
 
         Args:
-            wrapper: WebElement
-            index: Ürün indeksi
-            title_xpath: Başlık XPath'i
+            product_locator: Ürün elementi locator'ı
+            wait_for_details: Detayların yüklenmesini bekle
+            extractor_config: Özel extractor konfigürasyonu
 
         Returns:
-            Ürün bilgileri sözlüğü veya None
+            ProductDetail objesi
+        """
+        by, value = self._parse_locator(product_locator)
+
+        # Ürün elementini bul
+        product_element = self._wait_for_element(by, value, timeout=self.timeout)
+        if not product_element:
+            raise Exception(f"Ürün bulunamadı: {value}")
+
+        # Detayların yüklenmesini bekle (opsiyonel)
+        if wait_for_details:
+            time.sleep(2)
+
+        # Ürün detaylarını çıkar
+        product_detail = self.extractor.extract_from_element(product_element, extractor_config)
+
+        return product_detail
+
+    def _parse_locator(self, locator: Union[str, Tuple[By, str]]) -> Tuple[By, str]:
+        """
+        Locator'ı (By, value) formatına çevirir
+
+        Args:
+            locator: String XPath veya (By, value) tuple
+
+        Returns:
+            (By, value) tuple
+        """
+        if isinstance(locator, tuple):
+            return locator
+        else:
+            return (By.XPATH, locator)
+
+    def _load_all_products(self,
+                          load_by: By,
+                          load_value: str,
+                          product_by: By,
+                          product_value: str,
+                          max_products: int):
+        """
+        Tüm ürünleri yüklemek için "daha fazla" butonuna tıklar
         """
         try:
-            # Başlığı bulmaya çalış
-            title_element = None
-            title_text = None
+            max_clicks = 20  # Maksimum tıklama sayısı
+            click_count = 0
 
-            # Ana XPath ile dene
-            try:
-                title_element = wrapper.find_element(By.XPATH, title_xpath)
-                title_text = title_element.text.strip()
-            except:
-                pass
+            while click_count < max_clicks:
+                try:
+                    # Mevcut ürün sayısı
+                    current_count = len(self.driver.find_elements(product_by, product_value))
 
-            # Eğer bulunamazsa wrapper'ın kendi text'ini dene
-            if not title_text:
-                title_text = wrapper.text.strip()
+                    if current_count >= max_products:
+                        break
 
-            # Hala boşsa None döndür
-            if not title_text:
-                return None
+                    # "Daha fazla" butonunu bul ve tıkla
+                    load_button = self.driver.find_element(load_by, load_value)
 
-            # Fiyat bilgisini dene (varsa)
-            price = None
-            try:
-                price_element = wrapper.find_element(By.XPATH,
-                                                     './/*[contains(@class, "price") or contains(@class, "fiyat")]')
-                price = price_element.text.strip()
-            except:
-                pass
+                    if load_button.is_enabled():
+                        load_button.click()
+                        time.sleep(2)  # Yeni ürünlerin yüklenmesini bekle
+                        click_count += 1
 
-            # Link bilgisini dene (varsa)
-            link = None
-            try:
-                link_element = wrapper.find_element(By.XPATH, './/a')
-                link = link_element.get_attribute('href')
-            except:
-                pass
+                        # Yeni ürün sayısı
+                        new_count = len(self.driver.find_elements(product_by, product_value))
 
-            return {
-                'index': index,
-                'name': title_text,
-                'price': price,
-                'link': link,
-                'element': wrapper  # İleri seviye işlemler için
-            }
+                        if new_count <= current_count:  # Ürün artmıyorsa dur
+                            break
+                    else:
+                        break
+
+                except:
+                    break
 
         except Exception as e:
-            print(f"  ⚠️ Ürün {index} bilgisi alınamadı: {e}")
-            return None
+            print(f"⚠️ Ürün yükleme sırasında hata: {e}")
 
-    def print_results(self, result: SearchResult, show_details: bool = True, max_show: int = 10):
+    def print_product_details(self, product: ProductDetail, detailed: bool = False):
         """
-        Arama sonuçlarını ekrana yazdırır
+        Ürün detaylarını yazdırır
 
         Args:
-            result: SearchResult objesi
-            show_details: Detayları göster
-            max_show: Gösterilecek maksimum ürün sayısı
+            product: ProductDetail objesi
+            detailed: Tüm detayları göster
         """
         print("\n" + "=" * 70)
-        print(f"🔍 ARAMA SONUCU: '{result.term}'")
-        print("=" * 70)
-        print(f"⏱️  Süre: {result.search_time:.2f} saniye")
-        print(f"📦 Toplam ürün: {result.product_count}")
-        print(f"🕐 Zaman: {result.timestamp}")
-
-        if show_details and result.products:
-            print("\n📋 ÜRÜN LİSTESİ:")
-            print("-" * 70)
-
-            for product in result.products[:max_show]:
-                price_str = f" - 💰 {product['price']}" if product['price'] else ""
-                print(f"{product['index']:3d}. {product['name'][:70]}{price_str}")
-
-            if result.product_count > max_show:
-                print(f"\n   ... ve {result.product_count - max_show} ürün daha")
-
+        print("📦 ÜRÜN DETAYI")
         print("=" * 70)
 
-    def save_report(self, result: SearchResult, filename: Optional[str] = None) -> Path:
+        print(f"📝 İsim: {product.name}")
+        print(f"💰 Fiyat: {product.price or 'Bulunamadı'}")
+        print(f"🔗 Link: {product.link or 'Bulunamadı'}")
+        print(f"🖼️  Resim: {product.image or 'Bulunamadı'}")
+        print(f"🏷️  SKU: {product.sku or 'Bulunamadı'}")
+        print(f"🏭 Marka: {product.brand or 'Bulunamadı'}")
+
+        if product.description:
+            print(f"📄 Açıklama: {product.description[:200]}...")
+
+        if detailed and product.specifications:
+            print("\n📋 ÖZELLİKLER:")
+            for key, value in list(product.specifications.items())[:10]:
+                print(f"   • {key}: {value}")
+
+        if detailed and product.all_text:
+            print(f"\n📜 TÜM METİN (ilk 500 karakter):")
+            print(f"   {product.all_text[:500]}...")
+
+        print("=" * 70)
+
+    def save_products_to_json(self,
+                              result: SearchResult,
+                              filename: Optional[str] = None) -> Path:
         """
-        Arama sonuçlarını dosyaya kaydeder
+        Ürünleri JSON formatında kaydeder
 
         Args:
             result: SearchResult objesi
-            filename: Özel dosya adı (None = otomatik)
+            filename: Özel dosya adı
 
         Returns:
             Kaydedilen dosya yolu
         """
         if not filename:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"search_{result.term}_{timestamp}.txt"
+            filename = f"products_{result.term}_{timestamp}.json"
 
         file_path = self.report_dir / filename
 
+        # JSON için hazırla
+        data = {
+            "search_term": result.term,
+            "timestamp": result.timestamp,
+            "search_time": result.search_time,
+            "total_products": result.product_count,
+            "products": [p.to_dict() for p in result.products]
+        }
+
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
-                f.write("=" * 70 + "\n")
-                f.write(f"ARAMA RAPORU: '{result.term}'\n")
-                f.write("=" * 70 + "\n")
-                f.write(f"Tarih: {result.timestamp}\n")
-                f.write(f"Süre: {result.search_time:.2f} saniye\n")
-                f.write(f"Toplam Ürün: {result.product_count}\n")
-                f.write("-" * 70 + "\n\n")
+                json.dump(data, f, ensure_ascii=False, indent=2)
 
-                if result.products:
-                    f.write("ÜRÜN LİSTESİ:\n")
-                    f.write("-" * 70 + "\n")
-
-                    for product in result.products:
-                        f.write(f"{product['index']:3d}. {product['name']}\n")
-                        if product['price']:
-                            f.write(f"      Fiyat: {product['price']}\n")
-                        if product['link']:
-                            f.write(f"      Link: {product['link']}\n")
-                        f.write("-" * 40 + "\n")
-
-                f.write("\n" + "=" * 70 + "\n")
-                f.write("RAPOR SONU\n")
-                f.write("=" * 70 + "\n")
-
-            print(f"💾 Rapor kaydedildi: {file_path}")
+            print(f"💾 JSON kaydedildi: {file_path}")
             return file_path
 
         except Exception as e:
-            print(f"❌ Rapor kaydedilemedi: {e}")
+            print(f"❌ JSON kaydedilemedi: {e}")
             return file_path
 
-    def compare_searches(self, *terms: str) -> Dict:
+    def compare_products(self, product1: ProductDetail, product2: ProductDetail) -> Dict:
         """
-        Farklı arama terimlerini karşılaştırır
-
-        Args:
-            *terms: Karşılaştırılacak terimler
+        İki ürünü karşılaştırır
 
         Returns:
             Karşılaştırma sonuçları
         """
-        comparison = {}
-
-        for term in terms:
-            # Geçmişte var mı kontrol et
-            existing = next((r for r in self.search_history if r.term == term), None)
-
-            if existing:
-                comparison[term] = {
-                    'count': existing.product_count,
-                    'time': existing.search_time,
-                    'products': existing.products[:5]  # İlk 5 ürün
-                }
-            else:
-                # Yoksa yeni arama yap
-                result = self.search_and_get_results(term)
-                comparison[term] = {
-                    'count': result.product_count,
-                    'time': result.search_time,
-                    'products': result.products[:5]
-                }
+        comparison = {
+            "name_match": product1.name == product2.name,
+            "price_match": product1.price == product2.price,
+            "brand_match": product1.brand == product2.brand,
+            "sku_match": product1.sku == product2.sku,
+            "details": {
+                "product1": product1.summary(),
+                "product2": product2.summary()
+            }
+        }
 
         return comparison
 
-    def get_statistics(self) -> Dict:
-        """
-        Arama istatistiklerini döndürür
-        """
-        if not self.search_history:
-            return {"message": "Henüz arama yapılmadı"}
 
-        total_searches = len(self.search_history)
-        total_products = sum(r.product_count for r in self.search_history)
-        avg_products = total_products / total_searches
-        avg_time = sum(r.search_time for r in self.search_history) / total_searches
+# KOLAY KULLANIM İÇİN YARDIMCI FONKSİYONLAR
 
-        return {
-            "total_searches": total_searches,
-            "total_products": total_products,
-            "average_products_per_search": round(avg_products, 2),
-            "average_search_time": round(avg_time, 2),
-            "most_productive_search": max(self.search_history, key=lambda x: x.product_count).term,
-            "fastest_search": min(self.search_history, key=lambda x: x.search_time).term
-        }
+def search_products(driver: WebDriver,
+                   search_term: str,
+                   search_box: Union[str, Tuple[By, str]],
+                   product_list: Union[str, Tuple[By, str]]) -> SearchResult:
+    """
+    Basit arama fonksiyonu - tek satırda çağır
 
-    def clear_history(self):
-        """Arama geçmişini temizler"""
-        self.search_history.clear()
-        print("🧹 Arama geçmişi temizlendi")
+    Örnek:
+        results = search_products(driver, "laptop", "//input[@id='search']", "//div[@class='product']")
+    """
+    utils = AdvancedSearchUtils(driver)
+    return utils.search_and_get_products(search_term, search_box, product_list)
 
 
-# Kullanım kolaylığı için yardımcı fonksiyonlar
-def create_search_utils(driver: WebDriver, timeout: int = 10) -> SearchUtils:
-    """SearchUtils instance'ı oluşturur"""
-    return SearchUtils(driver, timeout)
+def get_product(driver: WebDriver,
+               product_locator: Union[str, Tuple[By, str]]) -> ProductDetail:
+    """
+    Tek ürün detayını çek - tek satırda çağır
+
+    Örnek:
+        product = get_product(driver, "//div[@class='product-detail']")
+    """
+    utils = AdvancedSearchUtils(driver)
+    return utils.get_product_details(product_locator)
 
 
-# Örnek kullanım
+def extract_all_products(driver: WebDriver,
+                        products_locator: Union[str, Tuple[By, str]],
+                        max_products: int = 10) -> List[ProductDetail]:
+    """
+    Sayfadaki tüm ürünleri çek
+
+    Örnek:
+        products = extract_all_products(driver, "//div[contains(@class, 'product-item')]")
+    """
+    utils = AdvancedSearchUtils(driver)
+    by, value = utils._parse_locator(products_locator)
+
+    products = []
+    elements = driver.find_elements(by, value)
+
+    for i, element in enumerate(elements[:max_products], 1):
+        print(f"Ürün {i} çekiliyor...")
+        product = utils.extractor.extract_from_element(element)
+        products.append(product)
+
+    return products
+
+
+# ÖRNEK KULLANIMLAR
 if __name__ == "__main__":
-    # Test amaçlı örnek
-    print("📚 SearchUtils sınıfı başarıyla yüklendi")
-    print("Kullanım için: from utils.search_utils import SearchUtils")
+    print("📚 AdvancedSearchUtils sınıfı başarıyla yüklendi")
+    print("\nÖRNEK KULLANIM:")
+    print("-" * 50)
+    print("""
+# 1. Basit arama:
+results = search_products(
+    driver, 
+    "laptop", 
+    "//input[@id='search']", 
+    "//div[@class='product-item']"
+)
+
+# 2. Tek ürün detayı:
+product = get_product(driver, "//div[@class='product-detail']")
+
+# 3. Gelişmiş kullanım:
+utils = AdvancedSearchUtils(driver)
+results = utils.search_and_get_products(
+    search_term="telefon",
+    search_box_locator="//input[@name='q']",
+    product_list_locator="//div[contains(@class, 'product-card')]",
+    max_products=20
+)
+
+# 4. JSON kaydet:
+utils.save_products_to_json(results)
+
+# 5. Ürün detaylarını görüntüle:
+for product in results.products[:3]:
+    utils.print_product_details(product)
+    """)

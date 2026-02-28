@@ -1,0 +1,150 @@
+{
+  "test_info": {
+    "term": "bird",
+    "description": "Kuş araması",
+    "product_count": 20,
+    "duration": 11.18,
+    "status": "PASS",
+    "timestamp": "2026-02-28 09:49:09",
+    "products_found": [
+      "TOP-TIER ATTENTION FOR YOUR FURRY LOVED ONE!",
+      "Wellness",
+      "Dental Care",
+      "Anaesthesia",
+      "Dermatology",
+      "Diagnostics",
+      "Vaccinations",
+      "Pain Control",
+      "Boarding",
+      "Test Department12",
+      "Test Department",
+      "Test Department",
+      "Test Department",
+      "Test Department",
+      "Test Department10",
+      "Dr. Alejandro Martinez",
+      "Dr. Marcus Rodriguez",
+      "Dr. Olivia Bennett",
+      "Dr. Emily Chang",
+      "Dr. Nathan Patel"
+    ]
+  },
+  "search_details": {
+    "term": "bird",
+    "total_products": 20,
+    "search_time": 11.180421352386475,
+    "timestamp": "2026-02-28 09:49:09"
+  },
+  "products": [
+    {
+      "name": "TOP-TIER ATTENTION FOR YOUR FURRY LOVED ONE!",
+      "price": "",
+      "link": "",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "TOP-TIER ATTENTION FOR YOUR FURRY LOVED ONE!\nOur veterinary services are meticulously crafted to cater to the unique needs of your pet. Count on our dedicated and compassionate team to prioritize the health and happiness of your cherished companion."
+    },
+    {
+      "name": "Wellness",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6d20bd756cute-dog-consultation.jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Wellness"
+    },
+    {
+      "name": "Dental Care",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6f94dc724dental.png",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Dental Care"
+    },
+    {
+      "name": "Anaesthesia",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6de18c11eveterinarian-taking-care-pet.jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Anaesthesia"
+    },
+    {
+      "name": "Dermatology",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6dfdc0edfcute-dog-consultation%20(1).jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Dermatology"
+    },
+    {
+      "name": "Diagnostics",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6e8493ae2cute-dog-consultation%20(2).jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Diagnostics"
+    },
+    {
+      "name": "Vaccinations",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6e91efaceveterinarian-taking-care-pet-dog.jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Vaccinations"
+    },
+    {
+      "name": "Pain Control",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6ea02254bclose-up-veterinarian-taking-care-pet.jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Pain Control"
+    },
+    {
+      "name": "Boarding",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/660d6eb73c37bportrait-female-friends-using-mobile-phone-while-standing-office.jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Boarding"
+    },
+    {
+      "name": "Test Department12",
+      "price": "",
+      "link": "",
+      "image": "https://qa.loyalfriendcare.com/images/6999ae0998c9dimages.jpg",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Test Department12"
+    }
+  ]
+}

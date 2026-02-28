@@ -1,0 +1,104 @@
+{
+  "test_info": {
+    "term": "re",
+    "description": "İlk 're' araması",
+    "product_count": 7,
+    "duration": 8.02,
+    "status": "PASS",
+    "timestamp": "2026-02-28 09:48:03",
+    "products_found": [
+      "Dental Care Room",
+      "Intensive Care Room",
+      "Dental Care",
+      "Surgical Procedure: Spaying (Ovariohysterectomy)",
+      "Revolution (Selamectin)",
+      "resimsiz",
+      "resimsizz"
+    ]
+  },
+  "search_details": {
+    "term": "re",
+    "total_products": 7,
+    "search_time": 8.02301836013794,
+    "timestamp": "2026-02-28 09:48:03"
+  },
+  "products": [
+    {
+      "name": "Dental Care Room",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Beds/dental-care-room",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Dental Care Room\n09-08-2022"
+    },
+    {
+      "name": "Intensive Care Room",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Beds/intensive-care",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Intensive Care Room\n21-02-2026"
+    },
+    {
+      "name": "Dental Care",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Departments/dental-care",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Dental Care\n06-08-2022"
+    },
+    {
+      "name": "Surgical Procedure: Spaying (Ovariohysterectomy)",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Pets/azawakh",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Surgical Procedure: Spaying (Ovariohysterectomy)\n09-08-2022"
+    },
+    {
+      "name": "Revolution (Selamectin)",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Medicines/suretin-mipen",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "Revolution (Selamectin)\n07-08-2022"
+    },
+    {
+      "name": "resimsiz",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Medicines/resimsiz",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "resimsiz\n26-02-2026"
+    },
+    {
+      "name": "resimsizz",
+      "price": "",
+      "link": "https://qa.loyalfriendcare.com/Medicines/resimsizz",
+      "image": "",
+      "sku": "",
+      "brand": "",
+      "description": "",
+      "specifications": {},
+      "all_text": "resimsizz\n26-02-2026"
+    }
+  ]
+}
