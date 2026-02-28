@@ -1,0 +1,24 @@
+
+payton  piton
+Kullanici
+https://qa.loyalfriendcare.com/en  isimli siteye gider
+
+Kullanici
+search_box_xpath = '//input[@class="form-control"]'
+
+kutusuna
+search_term="re" yazar. ve ENTER'a basar.
+
+arama sonuclari sayfasinda ilk urunun locate
+
+product_xpath = '//*[@class="wrapper"]'
+
+*** Kullanıcı once kaç element olduğu consola yazdırır
+
+sonra insan hareketlerini taklit ile
+urunlerin uzerinde dolaşır  urunleri highlight ederken uzerine urun numarasını yazar.
+her bir urunu highlight edip  kaçıncı urun olduğunu uzerine yazar.
+
+testin sonunda
+toplam urun sayısnı ve urun listesini consola yazdırır.
+
