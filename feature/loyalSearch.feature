@@ -1,5 +1,4 @@
 Feature:
-
   Scenario Outline:
     Given Kullanıcı LoyalFriend ana sayfasındadır
     When Kullanıcı arama kutusuna "<arama_terimi>" yazar ve arar
