@@ -1,6 +1,6 @@
 ============================================================
 KEYWORD LISTESI - C:\Users\user\PycharmProjects\QA_Lab_python\pages\DemoqaPage.py
-Oluşturulma Tarihi: 2026-02-26 05:50:39
+Oluşturulma Tarihi: 2026-02-28 10:14:47
 ============================================================
 
 SINIFLARDAKI KEYWORD METODLARI:
@@ -20,7 +20,3 @@ Keyword İçeren Sınıf Sayısı: 1
 Sınıflardaki Toplam Keyword Metod: 4
 Toplam Keyword Sayısı: 4
 ============================================================
-demoqa ana sayfasina gider
-demoqa login sayfasina gider
-login islemlerini gerceklesitirir
-demoqa tarayiciyi kapatir
